@@ -1,0 +1,118 @@
+@import "vars";
+
+@import "registration";
+@import "browse";
+@import "inbox";
+@import "profile";
+
+
+.navbar-brand {
+  background: url("../img/Navbar.png") 0 0 no-repeat;
+  text-indent: -9999px;
+  display: block;
+  width: 127px;
+  height: 51px;
+  padding: 0;
+  margin-top: -0.3rem;
+  margin-bottom: -0.5rem;
+}
+
+#navbar_search.form-control:focus {
+    color: #464a4c;
+    border-color: #999;
+    outline: none;
+}
+
+.bg-dark {
+  background-color: rgba(255,255,255,0.125) !important;
+}
+
+.material-icons {
+  vertical-align: middle;
+}
+
+.red-dot {
+  width: 8px;
+  height: 8px;
+  background-color: $brand-danger;
+  border-radius: 50%;
+  display: block;
+  position: absolute;
+  top: 4px;
+  right: 0;
+}
+
+.advanced-search {
+  background-color: $gray-lightest;
+  border-radius: 4px;
+  margin-top: 16px;
+  padding: 16px;
+  min-height: 300px;
+
+  select {
+    width: 100%;
+  }
+}
+
+.site-footer {
+  background-color: $gray-lightest;
+  margin-top: 32px;
+  padding: 4rem 0;
+  font-size: 85%;
+  text-align: center;
+
+  a {
+    font-weight: 500;
+    color: $gray;
+  }
+}
+
+.go-top {
+  display: block;
+  position: fixed;
+  right: 10px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  color: #999;
+}
+
+.page-header {
+  font-size: 28px;
+  border-bottom: 1px solid $border-line;
+  padding-bottom: 8px;
+  font-weight: 200;
+  margin-bottom: 16px;
+}
+h1.page-header {
+  margin-top: 16px;
+}
+
+.text-gray-light {
+  color: $gray-lighter;
+}
+
+// Override select2
+
+.select2-container--default .select2-selection--multiple {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+  border: solid #80c9ff 1px;
+}
+
+// Override powerange
+
+.range-quantity {
+  background-color: $brand-primary;
+}
+
+// autocomplete
+.autocomplete-suggestions { border: 1px solid rgba(0, 0, 0, 0.15); background: #FFF; overflow: auto; border-radius: 4px; padding: 0.5rem 0; }
+.autocomplete-suggestion { padding: 3px 1.5rem; white-space: nowrap; overflow: hidden; }
+.autocomplete-selected { background: #f7f7f9; }
+.autocomplete-suggestions strong { font-weight: normal; color: $brand-primary; }
+.autocomplete-group { padding: 2px 5px; }
+.autocomplete-group strong { display: block; border-bottom: 1px solid #000; }

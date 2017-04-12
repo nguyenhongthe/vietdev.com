@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static chat_tags %}
+
+{% block title %}Message Inbox - Vietdev{% endblock %}
+
+{% block content %}
+<div class="container inbox">
+    <h1 class="page-header">Message Inbox</h1>
+
+    <div class="alert" id="inbox_alert" style="display: none;"></div>
+
+    <div class="d-flex flex-wrap">
+        <div class="left-sidebar mr-lg-3">
+            <div class="list-group" id="conv_list">
+                {% for c in conversations %}
+                {% get_recipient c.users user as receiver %}
+                <a href="{% url 'chat:conversation' username=receiver.username %}" id="conv-{{ c.id }}"
+                   class="list-group-item list-group-item-action flex-column align-items-start {% if c == current_conversation %}active{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        {% num_unread c.id user.id as num %}
+                        <h5 class="mb-1">{{ receiver }} {% if num %}<span class="unread-num">({{ num }})</span>{% endif %}</h5>
+                        <small><time class="timeago" datetime="{{ c.last_updated|date:'c' }}">{{ c.last_updated|timesince_chat }}</time></small>
+                    </div>
+                    <div class="mb-1 last-message">{{ c.get_last_message|safe|striptags|truncatechars_html:60 }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="box direct-chat">
+            <div class="mb-3 chat-sender">
+                <textarea type="text" class="form-control " placeholder="Type something..." id="txt_msg" autofocus></textarea>
+                <div class="text-muted float-right small">Press Ctrl + Enter or Command(⌘) + Enter to send messages.</div>
+                <div>
+                    <button class="btn btn-secondary btn-sm mt-1" type="button" id="btn_send">Send <i class="material-icons">send</i></button>
+                    <label class="ml-4"><input type="checkbox" id="sound_toggler" checked> <small>Sound?</small></label>
+                </div>
+            </div>
+
+            <div class="box-body">
+                <div class="direct-chat-messages" id="chat-messages">
+                    {% for msg in msg_list %}
+                    {% if msg.sender == user %}
+                        <div class="direct-chat-msg {% if msg.is_unread %}unread{% endif %}" id="id-{{ msg.id_ }}">
+                            <div class="direct-chat-info clearfix">
+                                <span class="direct-chat-name pull-left">{{ msg.sender }}</span>
+                                <span class="direct-chat-timestamp pull-right">{{ msg.created_at_formatted }}</span>
+                            </div>
+                            <a href="{{ msg.sender.profile.get_absolute_url }}"><img class="direct-chat-img" src="{{ msg.sender.profile.get_avatar_url }}" alt=""></a>
+                            <div class="direct-chat-text">{{ msg.message|safe }}</div>
+                        </div>
+                    {% else %}
+                        <div class="direct-chat-msg right {% if msg.is_unread %}unread{% endif %}" id="id-{{ msg.id_ }}">
+                            <div class="direct-chat-info clearfix">
+                                <span class="direct-chat-name pull-right">{{ msg.sender }}</span>
+                                <span class="direct-chat-timestamp pull-left">{{ msg.created_at_formatted }}</span>
+                            </div>
+                            <a href="{{ msg.sender.profile.get_absolute_url }}"><img class="direct-chat-img" src="{{ msg.sender.profile.get_avatar_url }}" alt=""></a>
+                            <div class="direct-chat-text">{{ msg.message|safe }}</div>
+                        </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <p><a href="javascript:" id="load_more" class="text-muted small">Show more older messages</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="#" class="go-top"><i class="material-icons">&#xE25A;</i></a>
+{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'bower_components/switchery/dist/switchery.min.css' %}">
+{% endblock %}
+
+{% block footer_media %}
+    <script src="{% static 'bower_components/reconnectingWebsocket/reconnecting-websocket.min.js' %}"></script>
+    <script src="{% static 'bower_components/jquery.scrollTo/jquery.scrollTo.min.js' %}"></script>
+    <script src="{% static 'bower_components/ion-sound/js/ion.sound.min.js' %}"></script>
+    <script src="{% static 'bower_components/autosize/dist/autosize.min.js' %}"></script>
+    <script src="{% static 'bower_components/switchery/dist/switchery.min.js' %}"></script>
+    <script src="{% static 'bower_components/jquery-timeago/jquery.timeago.js' %}"></script>
+    <script src="{% static 'bower_components/jquery_appear/jquery.appear.js' %}"></script>
+    <script src="{% static 'js/jquery.truncate.js' %}"></script>
+    <script>
+    $(document).ready(function () {
+
+        jQuery.timeago.settings.strings = {
+            prefixAgo: null,
+            prefixFromNow: null,
+            suffixAgo: "",
+            suffixFromNow: "",
+            seconds: "Just now",
+            minute: "1m",
+            minutes: "%dm",
+            hour: "1h",
+            hours: "%dh",
+            day: "1d",
+            days: "%dd",
+            month: "1mo",
+            months: "%dmo",
+            year: "1yr",
+            years: "%dyr",
+            wordSeparator: " ",
+            numbers: []
+        };
+        $("time.timeago").timeago();
+
+        ion.sound({
+            sounds: [
+                { name: "water_droplet_3" }
+            ],
+            volume: 0.8,
+            path: "{% static 'bower_components/ion-sound/sounds/' %}",
+            preload: true
+        });
+
+        var chat = $('#chat-messages');
+        var btn_send = $('#btn_send');
+        var inbox_alert = $('#inbox_alert');
+        var conv_list = $('#conv_list');
+
+        var txt_msg = $('#txt_msg');
+        autosize(txt_msg);
+
+        var sound_toggler = document.querySelector('#sound_toggler');
+        var sound_switchery = new Switchery(sound_toggler, { size: 'small' });
+
+        sound_toggler.onchange = function() {
+            if (sound_toggler.checked) {
+                window.localStorage.setItem('chat-sound', 'yes');
+            } else {
+                window.localStorage.setItem('chat-sound', 'no');
+            }
+        };
+
+        if (window.localStorage.getItem('chat-sound') === 'yes') {
+            sound_switchery.setPosition(false);
+        } else {
+            sound_switchery.setPosition(true);
+        }
+
+        function show_alert(msg, type, interval) {
+            if (type) {
+                var t = type;
+            } else {
+                t = 'success';
+            }
+            if (interval) {
+                var i = interval;
+            } else {
+                i = 5000;
+            }
+            inbox_alert.addClass('alert-' + t).html(msg).show(1);
+            setTimeout(function () {
+                inbox_alert.hide(1);
+            }, i)
+        }
+
+        {% get_ws_host as ws %}
+        var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+        var ws_port = window.location.protocol === "https:" ? "{{ ws.port_secure }}" : "{{ ws.port }}";
+        var ws_path = ws_scheme + '://' + '{{ ws.host }}' + ':' + ws_port + "/chat/{{ receiver.user_id }}/";
+        var socket = new ReconnectingWebSocket(ws_path);
+
+        socket.onmessage = function (message) {
+
+            var data = $.parseJSON(message.data);
+
+            if (data.error === 'ACCESS_DENIED') {
+                $('.chat-sender').hide();
+                show_alert('Access denied connection.', 'danger');
+            }
+
+            function send_msg() {
+                if (txt_msg.val()) {
+                    socket.send(JSON.stringify({
+                        "command": "send",
+                        "conversation": data.join,
+                        "message": txt_msg.val()
+                    }));
+                }
+                txt_msg.val("").focus();
+                return false;
+            }
+
+            btn_send.click(function () {
+                send_msg();
+            });
+
+            txt_msg.bind('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && (e.keyCode === 13 || e.keyCode === 10)) {
+                    send_msg();
+                    return false;
+                }
+            });
+
+            if (data['message']) {
+                if (sound_toggler.checked) {
+                    ion.sound.play('water_droplet_3');
+                }
+
+                if (data['command'] === 'send') {
+                    var tpl = '';
+                    if (data['sender'] === '{{ user }}') {
+                        tpl = '<div class="direct-chat-msg" id="id-' + data['id_'] + '"><div class="direct-chat-info clearfix">' +
+                            '<span class="direct-chat-name pull-left">' + data['sender'] + '</span> ' +
+                            '<span class="direct-chat-timestamp pull-right">' + data['created_at'] + '</span></div>' +
+                            '<a href="' + data['sender_url'] + '"><img class="direct-chat-img" src="' + data['sender_avatar'] + '" alt=""></a>' +
+                            '<div class="direct-chat-text">' + data['message'] + '</div></div>';
+                    } else {
+                        tpl = '<div class="direct-chat-msg right" id="id-' + data['id_'] + '"><div class="direct-chat-info clearfix">' +
+                            '<span class="direct-chat-name pull-right">' + data['sender'] + '</span> ' +
+                            '<span class="direct-chat-timestamp pull-left">' + data['created_at'] + '</span></div>' +
+                            '<a href="' + data['sender_url'] + '"><img class="direct-chat-img" src="' + data['sender_avatar'] + '" alt=""></a>' +
+                            '<div class="direct-chat-text">' + data['message'] + '</div></div>';
+                    }
+                    chat.prepend(tpl);
+
+                    var conv = $(conv_list.find('#conv-' + data['conversation']).prop('outerHTML'));
+                    conv_list.find('#conv-' + data['conversation']).remove();
+                    conv_list.prepend(conv);
+                    conv.find('time.timeago').attr('datetime', new Date().toISOString());
+                    conv.find('time.timeago').timeago();
+                    conv.find('.last-message').html(jQuery.truncate(data['message'], {length: 60, stripTags: true}))
+                }
+
+                if ($(document).scrollTop() < 150) {
+                    $('body').scrollTo(0, 80);
+                }
+            }
+        };
+
+        socket.onopen = function () {
+            socket.send(JSON.stringify({
+                "command": "join",
+                "conversation": '{{ current_conversation.id }}'
+            }));
+            console.log('Connected');
+        };
+        socket.onclose = function () {
+            console.log('Disconnected');
+        };
+
+        $('.direct-chat-msg.unread').appear();
+        var read_submitted = false;
+        var id_list = [];
+        $(document.body).on('appear', function (event, $affected) {
+            if ($affected.length > 0 && !read_submitted) {
+                chat.find('.direct-chat-msg.unread').each(function () {
+                    var ele = $(this);
+                    id_list.push(ele.attr('id').split('-')[1]);
+                    setTimeout(function () {
+                        ele.removeClass('unread');
+                    }, 1000);
+                });
+                read_submitted = true;
+
+                $.post("{% url 'chat:make_read_messages' %}", {'ids': JSON.stringify(id_list)}).done(function(data){
+                    if (data['ok']) {
+                        $('#conv-{{ current_conversation.id }} .unread-num').remove();
+                    }
+                });
+            }
+        });
+
+        $('.go-top').click(function () {
+            $('body').scrollTo(0, 80);
+            return false;
+        });
+
+        var page = 2;
+        $('#load_more').click(function () {
+            var ele = $(this);
+            $.get("{% url 'chat:load_more_messages' %}", {conversation_id: '{{ current_conversation.id }}', page: page}).done(function(resp){
+                if (resp.length > 0) {
+                    for (var i = 0; i < resp.length; i++) {
+                        var data = resp[i];
+                        var tpl = '';
+                        if (data['sender'] === '{{ user }}') {
+                            tpl = '<div class="direct-chat-msg" id="id-' + data['id_'] + '"><div class="direct-chat-info clearfix">' +
+                                '<span class="direct-chat-name pull-left">' + data['sender'] + '</span> ' +
+                                '<span class="direct-chat-timestamp pull-right">' + data['created_at'] + '</span></div>' +
+                                '<a href="' + data['sender_url'] + '"><img class="direct-chat-img" src="' + data['sender_avatar'] + '" alt=""></a>' +
+                                '<div class="direct-chat-text">' + data['message'] + '</div></div>';
+                        } else {
+                            tpl = '<div class="direct-chat-msg right" id="id-' + data['id_'] + '"><div class="direct-chat-info clearfix">' +
+                                '<span class="direct-chat-name pull-right">' + data['sender'] + '</span> ' +
+                                '<span class="direct-chat-timestamp pull-left">' + data['created_at'] + '</span></div>' +
+                                '<a href="' + data['sender_url'] + '"><img class="direct-chat-img" src="' + data['sender_avatar'] + '" alt=""></a>' +
+                                '<div class="direct-chat-text">' + data['message'] + '</div></div>';
+                        }
+                        chat.append(tpl);
+                    }
+                    page++;
+                } else {
+                    ele.hide();
+                }
+            });
+            return false;
+        });
+
+    });
+    </script>
+{% endblock %}

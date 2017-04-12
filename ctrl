@@ -1,0 +1,2 @@
+#!/bin/sh
+/Users/user/py27env/bin/supervisorctl -c supervisord.ini $@

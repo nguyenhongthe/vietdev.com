@@ -1,0 +1,130 @@
+.profile {
+  padding: 16px 0;
+
+  .avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .name {
+    text-align: center;
+    font-size: 72px;
+    font-weight: 200;
+  }
+
+  .job-title {
+    text-align: center;
+    font-weight: 200;
+    color: $gray;
+  }
+
+  .is-available {
+    font-size: smaller;
+    text-align: center;
+    i {
+      font-size: 18px;
+      vertical-align: text-bottom;
+    }
+  }
+
+  .buttons {
+    text-align: center;
+    margin: 32px 0;
+  }
+
+  .hoz-line {
+    background-color: rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    color: lighten($gray-light, 15%);
+    height: 1px;
+    font-size: 11px;
+    line-height: 1px;
+    text-align: center;
+    margin: 24px 0;
+    strong {
+      background-color: white;
+      padding: 0 4px;
+    }
+  }
+
+  .languages-list {
+    text-align: center;
+    li {
+      font-size: 28px;
+      margin: 0 8px;
+      a {
+        color: $gray;
+      }
+    }
+  }
+
+  .skills-list {
+    li {
+      margin-bottom: 16px;
+      a {
+        color: $gray;
+      }
+      small {
+        margin-left: 8px;
+      }
+    }
+    .D {
+      color: #BA68C8 !important;
+    }
+    .W {
+      color: #66BB6A !important;
+    }
+    .M {
+      color: #64B5F6 !important;
+    }
+  }
+
+  .social-links {
+    li {
+      margin-bottom: 16px;
+
+      img {
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.profile-edit {
+  fieldset {
+    margin-top: 32px;
+  }
+  .widget-img {
+    width: 160px;
+    height: 160px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .skills-form {
+    border-radius: 4px;
+    border: 1px solid $border-line;
+    padding: 10px;
+    margin-bottom: 32px;
+    position: relative;
+
+    .btn-delete {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      border-radius: 50%;
+      display: block;
+      padding: 0;
+      position: absolute;
+      right: -15px;
+      top: -15px;
+    }
+  }
+
+}

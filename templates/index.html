@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center mt-5 mb-5">
+        <h1 class="display-4" style="font-weight: 200;">Looking for Developers in Vietnam?</h1>
+        <h2 class="lead">This website helps you easy to find freelancers who may meet your requirements and projects.</h2>
+    </div>
+    <form class="advanced-search" action=".">
+
+        {% crispy form %}
+
+        <button type="submit" class="btn btn-primary"><i class="material-icons">search</i> Search Developers</button>
+    </form>
+
+    {% if object_list %}
+    <div class="dev-list">
+        <h2 class="page-header">Vietnam Developers</h2>
+
+        {% for profile in object_list %}
+        <div class="media">
+            <a href="{{ profile.url }}"><img class="d-flex align-self-start mr-3" src="{{ profile.avatar }}" alt="Generic placeholder image"></a>
+            <div class="media-body">
+                <h2 class="mt-0"><a href="{{ profile.url }}">{{ profile.username }} {% if profile.name %}({{ profile.name }}){% endif %}</a></h2>
+                {% if profile.job_title %}<h3 class="job-title">{{ profile.job_title }}</h3>{% endif %}
+
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">attach_money</i></li>
+                    <li class="text-success">${{ profile.rate }}/hour</li>
+                </ul>
+                {% if profile.location and profile.location != '[]'  %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">location_on</i></li>
+                    <li>{{ profile.location }}</li>
+                </ul>
+                {% endif %}
+            </div>
+            {% if profile.is_available %}
+                <div class="available"><i class="material-icons text-success">check_circle</i></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+<p class="text-center text-muted mt-5"><small style="font-size: x-small;">Cookies help us improve our web content and deliver a personalized experience. By using this website, you agree to our use of cookies.</small></p>
+
+{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/powerange/dist/powerange.css' %}">
+{% endblock %}
+
+{% block footer_media %}
+<script src="{% static 'bower_components/select2/dist/js/select2.min.js' %}"></script>
+<script src="{% static 'bower_components/powerange/dist/powerange.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        var techs = $('#id_technology');
+        techs.select2({
+            placeholder: "Select technologies to filter",
+            allowClear: true
+        });
+
+        var elem = document.querySelector('#id_rate');
+        var start_val = $('#id_rate').val();
+        start_val = start_val ? start_val : 19.5;
+        new Powerange(elem, {
+            decimal: true,
+            callback: displayRate,
+            max: 100,
+            min: 1,
+            start: start_val,
+            step: 0.25
+        });
+
+        function displayRate() {
+            document.getElementById('js-display-rate').innerHTML = elem.value;
+        }
+    });
+
+</script>
+{% endblock %}
+

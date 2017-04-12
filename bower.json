@@ -1,0 +1,47 @@
+{
+  "name": "vietdev",
+  "description": "High Quality Developer Profiles in Vietnam",
+  "keywords": [
+    "css",
+    "js",
+    "sass",
+    "mobile-first",
+    "responsive",
+    "front-end",
+    "framework",
+    "web"
+  ],
+  "homepage": "https://vietdev.com",
+  "license": "MIT",
+  "moduleType": "globals",
+  "main": [
+    "static/css/main.scss"
+  ],
+  "ignore": [
+    "/.*",
+    "_config.yml",
+    "CNAME",
+    "composer.json",
+    "CONTRIBUTING.md",
+    "docs",
+    "js/tests",
+    "test-infra"
+  ],
+  "dependencies": {
+    "jquery": ">=1.9.1",
+    "tether": "^1.4.0",
+    "select2": "^4.0.3",
+    "powerange": "^0.0.2",
+    "switchery": "^0.8.2",
+    "angular": "^1.6",
+    "angular-sanitize": "1.6",
+    "angular-ui-select": "^0.19.6",
+    "reconnectingWebsocket": "^1.0.0",
+    "ion-sound": "ionsound#^3.0.7",
+    "jquery.scrollTo": "^2.1.2",
+    "autosize": "^3.0.20",
+    "jquery-timeago": "^1.5.4",
+    "jquery_appear": "^0.3.6",
+    "devbridge-autocomplete": "^1.4.1"
+  }
+}

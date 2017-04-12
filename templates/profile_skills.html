@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Your Skills{% endblock %}
+
+{% block content %}
+<div class="container profile-edit">
+    {% if not object.is_ready %}
+    <div class="alert alert-warning mt-2">Your profile is not ready till you add at least one skill.</div>
+    {% endif %}
+
+    <ul class="nav nav-tabs mb-3 mt-3">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profiles:profile_edit' username=object.user.username %}">Edit Your Info</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'profiles:profile_skills' username=object.user.username %}">Edit Your Skills</a>
+        </li>
+    </ul>
+
+    <p>Your profile will be ready once you add at least one technology that you master.</p>
+
+    <p>
+        <button type="button" class="btn btn-secondary" ng-click="add()"><i class="material-icons">add_circle</i> Add More Skills</button>
+        <a href="{% url 'profiles:profile' username=object.user.username %}" class="btn">View Your Profile</a>
+    </p>
+
+    <div class="alert ng-cloak" role="alert" ng-class="'alert-' + msg.type" ng-if="msg.value.length > 0" ng-bind-html="msg.value"></div>
+
+    {% verbatim %}
+    <div class="skills-form" ng-repeat="x in index_list" id="id-{{ x }}">
+        <div class="row">
+            <div class="col-lg-6">
+
+                <label>Technology</label>
+                <ui-select ng-model="skills[x].technology" theme="selectize">
+                    <ui-select-match>
+                        <span ng-bind="$select.selected.name"></span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="item in (techs | filter: $select.search) track by item.id">
+                        <span ng-bind="item.name"></span>
+                    </ui-select-choices>
+                </ui-select>
+
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Adept Rate <span ng-if="rate">({{ skills[x].rate }})</span></label>
+                    <input type="range" min="1" max="100" step="1" class="form-control" placeholder="1-100" ng-model="skills[x].rate" ng-init="rate=50">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Year of Experience</label>
+                    <input type="number" max="60" min="1" class="form-control" ng-model="skills[x].exp">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Activity</label>
+                    <ui-select ng-model="skills[x].activity" theme="selectize" search-enabled="false">
+                        <ui-select-match>
+                            <span ng-bind="$select.selected[1]"></span>
+                        </ui-select-match>
+                        <ui-select-choices repeat="item in (activity_choices | filter: $select.search) track by item[0]">
+                            <span ng-bind="item[1]"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="skills[x].real_projects"> I was involved in real projects
+            </label>
+        </div>
+        <button type="button" class="btn btn-secondary btn-delete" ng-click="del(x)"><i class="material-icons">delete</i></button>
+    </div>
+
+    <button class="btn btn-primary btn-block" type="button" ng-click="save()"><i class="material-icons">&#xE5CA;</i> Save Skills</button>
+    {% endverbatim %}
+</div>
+{% endblock %}
+
+{% block ng_app %}ng-app="MyApp" ng-controller="ProfileCtrl"{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'bower_components/angular-ui-select/dist/select.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/css/selectize.default.css">
+    <style>
+    .ng-cloak {
+        display: none;
+    }
+    </style>
+{% endblock %}
+
+{% block footer_media %}
+<script src="{% static 'bower_components/angular/angular.min.js' %}"></script>
+<script src="{% static 'bower_components/angular-sanitize/angular-sanitize.min.js' %}"></script>
+<script src="{% static 'bower_components/angular-ui-select/dist/select.min.js' %}"></script>
+
+<script>
+    Array.prototype.remove = function (from, to) {
+        var rest = this.slice((to || from) + 1 || this.length);
+        this.length = from < 0 ? this.length + from : from;
+        return this.push.apply(this, rest);
+    };
+
+    Array.prototype.max = function() {
+        return Math.max.apply(null, this);
+    };
+
+    var app = angular.module('MyApp', ['ngSanitize', 'ui.select']);
+
+    app.config(['$httpProvider', function ($httpProvider) {
+        $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    }]);
+
+    app.controller('ProfileCtrl', function ($scope, $http, $timeout) {
+        $scope.index_list = [0];
+
+        $scope.skills = [];
+        $http.get("{% url 'profiles:profile_skills_list_api' %}").then(function(resp){
+            var data = resp['data'];
+            for (var i = 0; i < data.length; i++) {
+                if ($scope.index_list.indexOf(i) === -1) {
+                    $scope.index_list.push(i);
+                }
+                $scope.skills[i] = {
+                    'technology': {'id': data[i]['technology'], 'name': data[i]['technology_name']},
+                    'activity': [data[i]['activity'], data[i]['activity_name']],
+                    'exp': data[i]['year_exp'],
+                    'rate': data[i]['self_rate'],
+                    'real_projects': data[i]['involved_real_projects']
+                };
+            }
+        });
+
+        $scope.activity_choices = [
+            ['', '----'],
+            ['D', 'Daily'],
+            ['W', 'Several days a week'],
+            ['M', 'Several days a month'],
+            ['S', 'Scattered']
+        ];
+
+        $scope.techs = [];
+        $http.get("{% url 'profiles:tech_list_api' %}").then(function(resp){
+            $scope.techs = resp['data'];
+        });
+
+        $scope.save = function(){
+            $http.post("{% url 'profiles:profile_skills_save_api' %}", $scope.skills).then(function(resp){
+                if (resp['data']['ok']) {
+                    $scope.show_alert('Saved successful!');
+                }
+            });
+        };
+
+        $scope.add = function () {
+            if ($scope.index_list.length < 10) {
+                if ($scope.index_list.length > 0) {
+                    $scope.index_list.push($scope.index_list.max() + 1);
+                } else {
+                    $scope.index_list.push(0);
+                }
+            } else {
+                $scope.show_alert('Max. 10 skills could be added for your profile.', 'danger');
+            }
+        };
+
+        $scope.del = function (i) {
+            var index = $scope.index_list.indexOf(i);
+            if (index > -1) {
+                $scope.index_list.splice(index, 1);
+            }
+            try {
+                $scope.skills.remove(i);
+            } catch(err) {}
+        };
+
+        $scope.msg = {
+            'value': '',
+            'type': ''
+        };
+        $scope.show_alert = function (msg, alert_type) {
+            $scope.msg.value = msg;
+            $scope.msg.type = alert_type ? alert_type : 'success';
+            $timeout(function () {
+                $scope.msg.value = '';
+            }, 5000)
+        }
+    });
+
+</script>
+{% endblock %}

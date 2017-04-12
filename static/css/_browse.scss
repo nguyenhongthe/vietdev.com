@@ -1,0 +1,43 @@
+.dev-list {
+  padding: 16px 0;
+
+  .form-inline {
+    margin-bottom: 32px;
+  }
+
+  .media {
+    margin-bottom: 32px;
+    border-bottom: 1px solid $border-line;
+    padding-bottom: 8px;
+
+    img {
+      width: 120px;
+      height: 120px;
+      border-radius: 4px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+    .job-title {
+      font-size: 18px;
+      font-weight: 200;
+    }
+    .skills-list {
+      margin: 0;
+      li {
+        margin-right: 8px;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: bold;
+        color: $gray;
+        a {
+          color: $gray;
+        }
+        .material-icons {
+          color: #aaa;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

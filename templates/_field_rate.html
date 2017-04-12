@@ -1,0 +1,9 @@
+{% load crispy_forms_field %}
+
+<div class="form-group">
+    <label for="id_rate">{{ field.label|safe }} (<span id="js-display-rate" class="text-success"></span> USD/hour)</label>
+    <div style="padding: 10px 30px;" class="{{ field_class }}">
+        {% crispy_field field %}
+        {% include 'bootstrap4/layout/help_text_and_errors.html' %}
+    </div>
+</div>

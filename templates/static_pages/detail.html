@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ object.title }} - Vietdev{% endblock %}
+
+{% block desc %}{{ object.desc }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <article>
+        <h1 class="page-header">{{ object.title }}</h1>
+
+        <section>
+            {{ object.content_safe|safe }}
+        </section>
+
+        <div style="margin-top: 16px; font-style: italic; font-size: 10px;">
+            Updated at:
+            <time class="timeago" datetime="{{ object.updated_at|date:'c' }}"></time>
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block footer_media %}
+    <script src="{% static 'bower_components/jquery-timeago/jquery.timeago.js' %}"></script>
+    <script>
+    $('.timeago').timeago();
+    </script>
+{% endblock %}

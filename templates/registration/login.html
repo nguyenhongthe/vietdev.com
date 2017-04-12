@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login to Your Account{% endblock %}
+
+{% block content %}
+<form method="post" action="{% url 'registration:login' %}" class="auth-form">{% csrf_token %}
+
+    <img class="profile-img" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png">
+
+    {% crispy form %}
+
+    <button class="btn btn-primary btn-block" type="submit"><i class="material-icons">&#xE5CA;</i> Let Me In</button>
+
+    <ul class="list-unstyled mt-2">
+        <li><a href="{% url 'registration:register' %}">Create New Account</a></li>
+        <li><a href="{% url 'registration:forgot_password' %}">Forgot Password?</a></li>
+    </ul>
+    <input type="hidden" name="next" value="{{ next }}">
+</form>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse All Freelancer Developers - Vietdev{% endblock %}
+
+{% block desc %}This page lists all developer profiles in Vietnam. You can filter result with terms easily.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dev-list">
+        <h1 class="page-header">Browse All Freelancer Developers</h1>
+
+        <form class="form-inline" id="id_form">
+            <i class="material-icons mr-2">sort</i>
+
+            <label class="sr-only" for="id_filter">Sort by</label>
+            <select class="form-control mb-2 mr-sm-3 mb-sm-0" id="id_filter" name="o">
+                <option value="new_comers">Newcomers</option>
+                <option value="best_skills">Best Skills</option>
+                <option value="rate_low_to_high">Rate: Low to High</option>
+                <option value="rate_high_to_low">Rate: High to Low</option>
+                <option value="age_young_to_old">Age: Young to Old</option>
+                <option value="age_old_to_young">Age: Old to Young</option>
+            </select>
+
+            <div class="form-check mb-2 mr-sm-2 mb-sm-0">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" name="is_available" id="id_available"> Available for hire
+                </label>
+            </div>
+        </form>
+
+        {% for profile in object_list %}
+        <div class="media">
+            <a href="{{ profile.get_absolute_url }}"><img class="d-flex align-self-start mr-3" src="{{ profile.get_avatar_url }}" alt="Generic placeholder image"></a>
+            <div class="media-body">
+                <h2 class="mt-0"><a href="{{ profile.get_absolute_url }}">{{ profile.get_name }}</a></h2>
+                {% if profile.job_title %}<h3 class="job-title">{{ profile.job_title }}</h3>{% endif %}
+
+                {% with profile.languages.all as langs %}
+                {% if langs %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">code</i></li>
+                    {% for lang in langs %}
+                        <li><a href="{{ lang.get_absolute_url }}">{{ lang }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+
+                {% with profile.get_techs_list as techs %}
+                {% if techs %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">show_chart</i></li>
+                    {% for tech in techs %}
+                    <li><a href="{{ tech.technology.get_absolute_url }}">{{ tech.technology.name }} ({{ tech.self_rate }})</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">attach_money</i></li>
+                    <li class="text-success">${{ profile.rate }}/hour</li>
+                </ul>
+                {% if profile.location %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">location_on</i></li>
+                    <li>{{ profile.location }}</li>
+                </ul>
+                {% endif %}
+            </div>
+            {% if profile.is_available %}
+                <div class="available"><i class="material-icons text-success">check_circle</i></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% include "_pagination.html" %}
+
+</div>
+{% endblock %}
+
+{% block footer_media %}
+<script>
+    $(document).ready(function () {
+        $('.available').tooltip({
+            title: 'Available for hire'
+        });
+
+        var form = $('#id_form');
+        var filter = $('#id_filter');
+        var available_check = $('#id_available');
+
+        available_check.click(function () {
+            form.submit();
+        });
+
+        {% if is_available == 'on' %}
+            available_check.attr('checked', 'checked');
+        {% else %}
+            available_check.removeAttr('checked');
+        {% endif %}
+
+        filter.change(function () {
+            var v = $(this).val();
+            if (v) {
+                form.submit();
+            }
+        });
+
+        filter.val('{{ o|default:"new_comers" }}');
+    });
+</script>
+{% endblock %}

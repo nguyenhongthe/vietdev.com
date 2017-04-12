@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if object.job_title %}
+        {{ object.get_name }} - {{ object.job_title }} - Vietdev
+    {% else %}
+        {{ object.get_name }} Dev Profile - Vietdev
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container profile">
+    <img src="{{ object.get_avatar_url }}" alt="" class="avatar">
+    <h1 class="name display-2">{{ object.get_name }}</h1>
+    {% if object.job_title %}<h2 class="job-title">{{ object.job_title }}</h2>{% endif %}
+
+    {% if object.is_ready %}
+        {% if object.is_available %}
+            <div class="is-available text-gray-dark"><i class="material-icons text-success">check_circle</i> Available for Hire</div>
+        {% else %}
+            <div class="is-available text-gray-dark"><i class="material-icons">event_busy</i> Not Available for Hire</div>
+        {% endif %}
+    {% else %}
+        <div class="is-available text-gray-dark"><i class="material-icons text-muted">highlight_off</i> This profile is not ready</div>
+    {% endif %}
+
+    <div class="buttons">
+        {% if user != object.user %}<a href="{% url 'chat:conversation' username=object.user.username %}" class="btn btn-primary"><i class="material-icons">forum</i> Send a Message</a>{% endif %}
+        {% if object.user.email and user != object.user %}<a href="{% url 'profiles:request_email' %}?u={{ object.user }}" class="btn btn-secondary"><i class="material-icons">email</i> Get Email Address</a>{% endif %}
+        {% if user == object.user %}<a href="{% url 'profiles:profile_edit' username=user.username %}" class="btn btn-secondary"><i class="material-icons">mode_edit</i> Edit</a>{% endif %}
+    </div>
+
+    {% with object.languages.all as langs %}
+    {% if langs %}
+    <h3 class="hoz-line" id="programming_languages"><strong>Languages</strong></h3>
+    <ul class="list-inline languages-list">
+        {% for lang in langs %}
+            <li class="list-inline-item"><a href="{{ lang.get_absolute_url }}">{{ lang }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% with profile.get_techs_list as techs %}
+    {% if techs %}
+    <h3 class="hoz-line" id="skills"><strong>Self-Rated Skills</strong></h3>
+    <ul class="list-unstyled skills-list">
+        {% for tech in techs %}
+        <li>
+            <a href="{{ tech.technology.get_absolute_url }}">{{ tech.technology.name }}</a>
+            <small class="year_exp text-muted {{ tech.activity }}" data-title="{{ tech.get_activity_display }}">{{ tech.year_exp }} year{{ tech.year_exp|pluralize }}</small>
+            {% if tech.involved_real_projects %}<span class="real-projects text-muted"><i class="material-icons">check</i></span>{% endif %}
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ tech.self_rate }}%" aria-valuenow="{{ tech.self_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+    {% if object.english_level %}
+    <p>
+        English Level: <b>{{ object.get_english_level_display }}</b>
+    </p>
+    <p>
+        Suggested Rate: <b class="text-success">${{ object.rate }}/hour</b>
+    </p>
+    {% endif %}
+
+    {% if object.about_safe or object.birth_year or object.sex or object.location %}
+    <article>
+        <h3 class="hoz-line" id="about"><strong>About {{ object.get_name }}</strong></h3>
+        <ul class="list-inline">
+            {% if object.birth_year %}<li class="list-inline-item">Age: <b>{{ object.get_age|default:'-' }}</b></li>{% endif %}
+            {% if object.sex %}<li class="list-inline-item">Sex: <b>{{ object.get_sex_display }}</b></li>{% endif %}
+            {% if object.location %}<li class="list-inline-item">Location: <b>{{ object.location }}</b></li>{% endif %}
+        </ul>
+
+        {{ object.about_safe|safe }}
+    </article>
+    {% endif %}
+
+    {% if object.show_refs %}
+    <h3 class="hoz-line" id="about"><strong>References</strong></h3>
+    <ul class="social-links list-unstyled">
+        {% if object.homepage %}<li><img src="{% static 'svg/link.svg' %}" alt=""> <a href="{{ object.homepage }}" target="_blank" rel="nofollow">{{ object.get_homepage_name }}</a></li>{% endif %}
+        {% if object.twitter %}<li><img src="{% static 'svg/twitter.svg' %}" alt=""> <a href="https://twitter.com/{{ object.twitter }}" target="_blank" rel="nofollow">twitter.com/{{ object.twitter }}</a></li>{% endif %}
+        {% if object.github %}<li><img src="{% static 'svg/github.svg' %}" alt=""> <a href="https://github.com/{{ object.github }}" target="_blank" rel="nofollow">github.com/{{ object.github }}</a></li>{% endif %}
+    </ul>
+    {% endif %}
+
+    {% if object.show_gears %}
+    <h3 class="hoz-line" id="about"><strong>Armed Gears</strong></h3>
+    <div class="row">
+        {% if object.software.exists %}
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <h4>Software</h4>
+            <ul>
+                {% for item in object.software.all %}
+                <li>{{ item.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if object.hardware.exists %}
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <h4>Hardware</h4>
+            <ul>
+                {% for item in object.hardware.all %}
+                <li>{{ item.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'css/pygments.css' %}">
+{% endblock %}
+
+{% block footer_media %}
+<script>
+    $(document).ready(function () {
+        move_progress_bar();
+    });
+
+    $('.year_exp').tooltip();
+    $('.real-projects').tooltip({
+        title: 'Involved real projects'
+    });
+
+    function move_progress_bar() {
+        $('.progress > .progress-bar').each(function (e) {
+            var max = $(this).attr('aria-valuenow');
+            var elem = this;
+            var width = 1;
+            var id = setInterval(frame, 10);
+            function frame() {
+                if (width >= max) {
+                    clearInterval(id);
+                } else {
+                    width++;
+                    elem.style.width = width + '%';
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,102 @@
+{
+  "name": "vietdev",
+  "description": "High Quality Developer Profiles in Vietnam",
+  "version": "1.0",
+  "keywords": [
+    "css",
+    "sass",
+    "mobile-first",
+    "responsive",
+    "front-end",
+    "framework",
+    "web"
+  ],
+  "homepage": "https://vietdev.com",
+  "author": "Anh Tran (https://anhtran.net/)",
+  "contributors": [
+    "Anh Tran"
+  ],
+  "scripts": {
+  },
+  "style": "static/css/main.css",
+  "sass": "static/css/main.scss",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vietdev/vietdev.com.git"
+  },
+  "bugs": {},
+  "license": "MIT",
+  "dependencies": {
+    "jquery": ">=1.9.1",
+    "tether": "^1.4.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.7.2",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-es2015-modules-strip": "^0.1.0",
+    "babel-preset-es2015": "^6.22.0",
+    "clean-css-cli": "^4.0.0",
+    "eslint": "^3.15.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-build-control": "^0.7.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-compress": "^1.4.1",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-qunit": "^1.2.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exec": "^1.0.1",
+    "grunt-jekyll": "^0.4.6",
+    "grunt-saucelabs": "^9.0.0",
+    "grunt-stamp": "^0.3.0",
+    "htmlhint": "^0.9.13",
+    "htmllint-cli": "^0.0.6",
+    "is-travis": "^1.0.0",
+    "load-grunt-tasks": "^3.5.2",
+    "node-sass": "^4.5.0",
+    "postcss-cli": "^2.6.0",
+    "postcss-flexbugs-fixes": "^2.1.0",
+    "shelljs": "^0.7.6",
+    "shx": "^0.2.2",
+    "time-grunt": "^1.4.0",
+    "uglify-js": "^2.7.5",
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-live-server": "0.0.30",
+    "gulp-sass": "^2.3.2",
+    "gulp-less": "^3.0.2",
+    "gulp-postcss": "^6.0.1",
+    "gulp-replace": "^0.5.2",
+    "gulp-tap": "^0.1.3"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "files": [
+    "dist",
+    "grunt",
+    "js/**/*.js",
+    "scss/**/*.scss",
+    "Gruntfile.js",
+    "LICENSE"
+  ],
+  "jspm": {
+    "main": "js/bootstrap",
+    "directories": {
+      "lib": "dist"
+    },
+    "shim": {
+      "js/bootstrap": {
+        "deps": [
+          "jquery"
+        ],
+        "exports": "$"
+      }
+    },
+    "dependencies": {
+      "jquery": "3"
+    }
+  }
+}

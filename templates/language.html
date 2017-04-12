@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block title %}{{ object.name }} Developers in Vietnam - Vietdev{% endblock %}
+
+{% block desc %}Listing all {{ object.name }} developer profiles in Vietnam.{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <article>
+        <h1 class="page-header">{{ object.name }} Developers in Vietnam</h1>
+
+        {% if page_obj.number == 1 %}
+            {{ object.desc_safe|safe }}
+            {% if object.desc_safe %}<hr>{% endif %}
+        {% endif %}
+    </article>
+
+    <div class="dev-list">
+
+        {% for profile in object_list %}
+        <div class="media">
+            <a href="{{ profile.get_absolute_url }}"><img class="d-flex align-self-start mr-3" src="{{ profile.get_avatar_url }}" alt="Generic placeholder image"></a>
+            <div class="media-body">
+                <h2 class="mt-0"><a href="{{ profile.get_absolute_url }}">{{ profile.get_name }}</a></h2>
+                {% if profile.job_title %}<h3 class="job-title">{{ profile.job_title }}</h3>{% endif %}
+
+                {% with profile.languages.all as langs %}
+                {% if langs %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">code</i></li>
+                    {% for lang in langs %}
+                        <li><a href="{{ lang.get_absolute_url }}">{{ lang }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+
+                {% with profile.get_techs_list as techs %}
+                {% if techs %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">show_chart</i></li>
+                    {% for tech in techs %}
+                    <li><a href="{{ tech.technology.get_absolute_url }}">{{ tech.technology.name }} ({{ tech.self_rate }})</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">attach_money</i></li>
+                    <li class="text-success">${{ profile.rate }}/hour</li>
+                </ul>
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">location_on</i></li>
+                    <li>{{ profile.location }}</li>
+                </ul>
+            </div>
+            {% if profile.is_available %}
+                <div class="available"><i class="material-icons text-success">check_circle</i></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% include "_pagination.html" %}
+
+</div>
+
+{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'css/pygments.css' %}">
+{% endblock %}
+
+{% block footer_media %}
+<script>
+    $(document).ready(function () {
+        $('.available').tooltip({
+            title: 'Available for hire'
+        });
+    });
+</script>
+{% endblock %}

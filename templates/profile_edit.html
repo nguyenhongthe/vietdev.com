@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static crispy_forms_tags %}
+
+{% block title %}Edit Your Profile{% endblock %}
+
+{% block content %}
+<div class="container profile-edit">
+    {% if not object.is_ready %}
+    <div class="alert alert-warning mt-2">Your profile is not ready till you add at least one skill.</div>
+    {% endif %}
+
+    <ul class="nav nav-tabs mb-3 mt-3">
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'profiles:profile_edit' username=object.user.username %}">Edit Your Info</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profiles:profile_skills' username=object.user.username %}">Edit Your Skills</a>
+        </li>
+    </ul>
+
+    <form method="post" action="." enctype="multipart/form-data">{% csrf_token %}
+
+        {% crispy form %}
+
+        <button class="btn btn-primary btn-block" type="submit"><i class="material-icons">&#xE5CA;</i> Save Profile</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block header_media %}
+    <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/powerange/dist/powerange.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bower_components/switchery/dist/switchery.min.css' %}">
+{% endblock %}
+
+{% block footer_media %}
+<script src="{% static 'bower_components/select2/dist/js/select2.min.js' %}"></script>
+<script src="{% static 'bower_components/powerange/dist/powerange.min.js' %}"></script>
+<script src="{% static 'bower_components/switchery/dist/switchery.min.js' %}"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#id_languages').select2({
+            placeholder: "Select languages you master",
+            allowClear: true
+        });
+
+        $('#id_software').select2({
+            placeholder: "Select software you're using",
+            allowClear: true
+        });
+
+        $('#id_hardware').select2({
+            placeholder: "Select hardware you're using",
+            allowClear: true
+        });
+
+        var rate_elem = document.querySelector('#id_rate');
+        var is_available_elem = document.querySelector('#id_is_available');
+
+        new Switchery(is_available_elem, {});
+
+        var start_val = $('#id_rate').val();
+        start_val = start_val ? start_val : 19.5;
+        new Powerange(rate_elem, {
+            decimal: true,
+            callback: displayRate,
+            max: 100,
+            min: 1,
+            start: start_val,
+            step: 0.25
+        });
+
+        function displayRate() {
+            document.getElementById('js-display-rate').innerHTML = rate_elem.value;
+        }
+    });
+
+</script>
+{% endblock %}

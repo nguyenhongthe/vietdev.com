@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results for `{{ query }}` - Vietdev{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dev-list">
+
+        <form class="input-group mb-4" action="{% url 'profiles:search_results' %}">
+            <input type="search" class="form-control" placeholder="Enter keyword" name="q" value="{{ query }}" autofocus>
+            <span class="input-group-btn">
+            <button class="btn btn-secondary" type="button"><i class="material-icons">search</i> Search</button>
+          </span>
+        </form>
+
+        <h1 class="page-header">Search Results for `{{ query }}`</h1>
+
+        {% for profile in object_list %}
+        <div class="media">
+            <a href="{{ profile.url }}"><img class="d-flex align-self-start mr-3" src="{{ profile.avatar }}" alt="Generic placeholder image"></a>
+            <div class="media-body">
+                <h2 class="mt-0"><a href="{{ profile.url }}">{{ profile.username }} {% if profile.name %}({{ profile.name }}){% endif %}</a></h2>
+                {% if profile.job_title %}<h3 class="job-title">{{ profile.job_title }}</h3>{% endif %}
+
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">attach_money</i></li>
+                    <li class="text-success">${{ profile.rate }}/hour</li>
+                </ul>
+                {% if profile.location and profile.location != '[]'  %}
+                <ul class="list-inline skills-list">
+                    <li><i class="material-icons">location_on</i></li>
+                    <li>{{ profile.location }}</li>
+                </ul>
+                {% endif %}
+            </div>
+            {% if profile.is_available %}
+                <div class="available"><i class="material-icons text-success">check_circle</i></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% include "_pagination.html" %}
+
+</div>
+{% endblock %}
+

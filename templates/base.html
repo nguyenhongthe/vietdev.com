@@ -1,0 +1,115 @@
+<!DOCTYPE html>{% load static profile_tags chat_tags %}
+<html lang="en" {% block ng_app %}{% endblock %}>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}VietDev: High Quality Developer Profiles in Vietnam{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="{% block desc %}{% endblock %}">
+
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/Icon_512.png' %}">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    {% block header_media %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+</head>
+<body>
+{% block header %}
+<nav class="navbar navbar-toggleable-md navbar-inverse bg-inverse">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="/">VietDev</a>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {% main_nav 'home' %}">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item {% main_nav 'browse' %}">
+                <a class="nav-link" href="{% url 'profiles:browse' %}">Browse</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item {% main_nav 'inbox' %}">
+                <a class="nav-link" style="position: relative;" href="{% url 'chat:inbox' %}">Inbox
+                    {% if user.is_authenticated %}
+                        {% num_unread_by_user user.id as num %}
+                        {% if num > 0 %}
+                        <span class="red-dot"></span>
+                        {% endif %}
+                    {% endif %}
+                </a>
+            </li>
+            <li class="nav-item {% main_nav 'profile' %}">
+                <a class="nav-link" href="{% url 'profiles:profile' user.username %}">@{{ user.username }}</a>
+            </li>
+            {% endif %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="" id="dropdown_account" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Account</a>
+                {% if user.is_authenticated %}
+                    <div class="dropdown-menu" aria-labelledby="dropdown_account">
+                        <a class="dropdown-item" href="{% url 'registration:change_password' %}">Change Password</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'registration:logout' %}">Logout</a>
+                    </div>
+                {% else %}
+                    <div class="dropdown-menu" aria-labelledby="dropdown_account">
+                        <a class="dropdown-item" href="{% url 'registration:login' %}">Login</a>
+                        <a class="dropdown-item" href="{% url 'registration:register' %}">Register</a>
+                    </div>
+                {% endif %}
+            </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0" action="{% url 'profiles:search_results' %}">
+            <input class="form-control mr-sm-2 bg-dark text-white" type="search" name="q" placeholder="Enter keyword" id="navbar_search">
+            <button class="btn btn-primary my-2 my-sm-0" type="submit"><i class="material-icons">search</i></button>
+        </form>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}
+<footer class="site-footer text-muted">
+    <div class="container">
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="{% url 'pages:detail' slug='about' %}">About</a></li>
+            <li class="list-inline-item"><a href="{% url 'pages:detail' slug='terms-conditions' %}">Terms</a></li>
+            <li class="list-inline-item"><a href="{% url 'contact:form' %}">Contact</a></li>
+            <li class="list-inline-item"><a href="https://github.com/vietdev/vietdev.com">Open Sources</a></li>
+        </ul>
+        <p>VietDev &copy; 2017.</p>
+    </div>
+</footer>
+{% endblock %}
+
+<script src="{% static 'bower_components/tether/dist/js/tether.min.js' %}"></script>
+<script src="{% static 'bower_components/devbridge-autocomplete/dist/jquery.autocomplete.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+    $('#navbar_search').autocomplete({
+        lookup: function (query, done) {
+            $.get('{% url "profiles:search_auto" %}', {query: query}).done(function(data){
+                var result = {
+                    suggestions: data
+                };
+                done(result);
+            });
+        },
+        minChars: 2,
+        deferRequestBy: 300,
+        onSelect: function (suggestion) {
+            window.location.href = suggestion.data;
+        }
+    });
+</script>
+
+{% block footer_media %}{% endblock %}
+</body>
+</html>

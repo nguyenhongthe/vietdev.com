@@ -1,0 +1,30 @@
+[
+{
+  "model": "static_pages.page",
+  "pk": 1,
+  "fields": {
+    "title": "About",
+    "slug": "about",
+    "content": "Updating...",
+    "content_safe": "<p>Updating...</p>\n",
+    "desc": "",
+    "public": true,
+    "created_at": "2017-04-12T10:18:48.345Z",
+    "updated_at": "2017-04-12T10:20:39.275Z"
+  }
+},
+{
+  "model": "static_pages.page",
+  "pk": 2,
+  "fields": {
+    "title": "Terms & Conditions",
+    "slug": "terms-conditions",
+    "content": "Updating...",
+    "content_safe": "<p>Updating...</p>",
+    "desc": "",
+    "public": true,
+    "created_at": "2017-04-12T10:19:47.620Z",
+    "updated_at": "2017-04-12T10:19:49.408Z"
+  }
+}
+]
